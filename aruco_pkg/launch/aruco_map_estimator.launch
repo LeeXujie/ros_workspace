@@ -1,0 +1,23 @@
+<launch>
+
+    <arg name="camera_name" default="192.168.1.100" />
+
+    <node name="map_estimator" pkg="aruco_pkg" type="aruco_map_estimator" output="screen" >
+        <param name="camerafile" value="$(find camnode)/camera_info/$(arg camera_name).yaml" />
+        <param name="mapfile" value="$(find aruco_pkg)/markermap/marker_map.yml"/>
+        <param name="marker_size" value="0.135" />
+        <remap from="/map_estimator/image_raw" to="/camnode/image_raw" />
+    </node>
+
+    <node name="filter" pkg="aruco_pkg" type="filter_node" output="screen" >
+        <param name="Kalman_Q" value="1e-5" />
+        <param name="Kalman_R" value="1e-3"/>
+        <remap from="/vo_data" to="/map_estimator/vo_data" />
+    </node>
+
+    <!--<node name="image_view" pkg="image_view" type="image_view" respawn="false" output="screen" >
+        <remap from="image" to="/map_estimator/cam_image" />
+        <param name="autosize" value="true" />
+    </node>-->
+
+</launch>

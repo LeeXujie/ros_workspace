@@ -1,0 +1,20 @@
+<launch>
+    <arg name="file_name" default="navigation_path" />
+
+    <node name="rviz" pkg="rviz" type="rviz" required="true" 
+    args="-d $(find aruco_pkg)/rviz/load_visual.rviz" />
+
+    <node name="map_odom" pkg="tf" type="static_transform_publisher" 
+    args="-4 -2 0 3.14 0 1.57 map odom 100" />
+
+    <node name="path_tracker" pkg="aruco_pkg" type="path_tracker_node" output="screen" >
+        <param name="path_file" value="$(find aruco_pkg)/path_file/$(arg file_name).txt" />
+        <remap from="/vo_data" to="/map_estimator/vo_data" />
+    </node>
+
+    <node pkg="aruco_pkg" type="pose_grapher_node" name="pose_grapher" output="screen">
+        <param name="pcd_path" value="$(find aruco_pkg)/markermap/marker_map.pcd"/>
+        <remap from="/vo_data" to="/map_estimator/vo_data" />
+    </node>
+
+</launch>

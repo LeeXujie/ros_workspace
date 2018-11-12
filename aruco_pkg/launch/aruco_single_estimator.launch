@@ -1,0 +1,18 @@
+<launch>
+
+    <arg name="camera_name" default="192.168.1.100" />
+
+    <node name="single_estimator" pkg="aruco_pkg" type="aruco_single_estimator" output="screen" >
+        <param name="camerafile" value="$(find camnode)/camera_info/$(arg camera_name).yaml" />
+        <param name="dictionary" value="ARUCO" />
+        <param name="marker_size" value="0.135" />
+        <param name="reference_marker_id" value="0" />
+        <remap from="/single_estimator/image_raw" to="/camnode/image_raw" />
+    </node>
+
+    <node name="image_view" pkg="image_view" type="image_view" respawn="false" output="screen" >
+        <remap from="image" to="/single_estimator/cam_image" />
+        <param name="autosize" value="true" />
+    </node>
+
+</launch>
