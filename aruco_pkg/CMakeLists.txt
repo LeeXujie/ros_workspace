@@ -8,6 +8,7 @@ add_compile_options(-std=c++11)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  message_generation
   roscpp std_msgs image_transport cv_bridge tf pcl_ros
 )
 
@@ -19,6 +20,8 @@ find_package(marker_mapper REQUIRED)
 
 
 catkin_package(
+  CATKIN_DEPENDS
+  message_runtime
 #  INCLUDE_DIRS include
 #  LIBRARIES aruco_pkg
 #  CATKIN_DEPENDS roscpp std_msgs image_transport cv_bridge tf pcl_ros
@@ -86,3 +89,5 @@ target_link_libraries(pose_grapher_node ${catkin_LIBRARIES})
 add_executable(filter_node src/fusion_filter.cpp)
 add_dependencies(filter_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(filter_node ${catkin_LIBRARIES})
+
+

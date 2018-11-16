@@ -54,7 +54,7 @@ public:
     Eigen::Vector3d vio_t_cam(odometry_msg->pose.pose.position.x,
                               odometry_msg->pose.pose.position.y,
                               odometry_msg->pose.pose.position.z);
-    Eigen::Quaterniond vio_q_cam(-odometry_msg->pose.pose.orientation.w,
+    Eigen::Quaterniond vio_q_cam(odometry_msg->pose.pose.orientation.w,
                                  odometry_msg->pose.pose.orientation.x,
                                  odometry_msg->pose.pose.orientation.y,
                                  odometry_msg->pose.pose.orientation.z);

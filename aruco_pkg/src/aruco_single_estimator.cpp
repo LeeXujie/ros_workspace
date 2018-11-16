@@ -15,7 +15,7 @@
 
 #include <cv_bridge/cv_bridge.h>
 #include <image_transport/image_transport.h>
-#include <nav_msgs/Odometry.h>
+#include <geometry_msgs/PoseStamped.h>
 #include <ros/ros.h>
 
 using namespace cv;
@@ -34,23 +34,44 @@ char cam_pose[100];
 char cam_vect[100];
 
 image_transport::Publisher image_pub;
+ros::Publisher pose_pub;
+
+double qx, qy, qz, qw, tx, ty, tz;
+
+void getQuaternionAndTranslationfromMatrix44(const cv::Mat &M_in_, double &qx_,
+                                             double &qy_, double &qz_, double &qw_,
+                                             double &tx_, double &ty_, double &tz_);
 
 void imageCallback(const sensor_msgs::ImageConstPtr &msg) {
   try {
     theInputImage = cv_bridge::toCvShare(msg, "bgr8")->image;
     theInputImage.copyTo(theCopyImage);
     theMarkers = mDetector.detect(theInputImage);
+
     for (auto &marker : theMarkers)
       if(mTracker[marker.id].estimatePose(marker, theCameraParameters, theMarkerSize))
       {
         if (ref_id == marker.id) {
-
           Mat RTMatrix=mTracker[ref_id].getRTMatrix();
+
           Mat vect = (Mat_<float>(3, 1) << 0.0, 0.0, 1.0);
           Mat camPosMatrix, camVecMatrix;
           Mat RTInv=RTMatrix.inv();
           camPosMatrix=RTInv(Rect(3,0,1,3)).clone();
           camVecMatrix=RTInv(Range(0,3),Range(0,3))*vect;
+
+          getQuaternionAndTranslationfromMatrix44(RTInv, qx, qy, qz, qw, tx, ty, tz);
+          geometry_msgs::PoseStamped camPose;
+          camPose.header.stamp = msg->header.stamp;
+          camPose.header.frame_id = "odom";
+          camPose.pose.position.x = tx;
+          camPose.pose.position.y = ty;
+          camPose.pose.position.z = tz;
+          camPose.pose.orientation.x = qx;
+          camPose.pose.orientation.y = qy;
+          camPose.pose.orientation.z = qz;
+          camPose.pose.orientation.w = qw;
+          pose_pub.publish(camPose);
 
 //          Mat rMatrix, tMatrix;
 //          Rodrigues(marker.Rvec, rMatrix);
@@ -64,6 +85,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr &msg) {
                   camVecMatrix.at<float>(0, 0), camVecMatrix.at<float>(1, 0), camVecMatrix.at<float>(2, 0));
 
           CvDrawingUtils::draw3dAxis(theCopyImage, marker, theCameraParameters);
+
         }
         marker.draw(theCopyImage, Scalar(0, 0, 255), 2, true);
       }
@@ -97,8 +119,9 @@ int main(int argc, char **argv) {
 
   image_transport::ImageTransport it(nh);
   image_pub = it.advertise("cam_image", 10);
+  pose_pub = nh.advertise<geometry_msgs::PoseStamped>("vo_data", 10);
   ros::Subscriber sub_image = nh.subscribe("image_raw", 10, imageCallback);
-
+  
   mDetector.setDictionary(dictionary);
   mDetector.getParameters().detectEnclosedMarkers(true);
   theCameraParameters.readFromXMLFile(camerafile);
@@ -111,4 +134,32 @@ int main(int argc, char **argv) {
     loop_rate.sleep();
   }
   return 0;
+}
+
+
+void getQuaternionAndTranslationfromMatrix44(const cv::Mat &M_in_, double &qx_,
+                                             double &qy_, double &qz_, double &qw_,
+                                             double &tx_, double &ty_, double &tz_)
+{
+  // get the 3d part of matrix and get quaternion
+  assert(M_in_.total() == 16);
+  cv::Mat M;
+  M_in_.convertTo(M, CV_64F);
+  cv::Mat r33 = cv::Mat(M, cv::Rect(0, 0, 3, 3));
+  // use now eigen
+  Eigen::Matrix3d e_r33;
+  for (int i = 0; i < 3; i++)
+    for (int j = 0; j < 3; j++)
+      e_r33(i, j) = M.at<double>(i, j);
+
+  // now, move to a angle axis
+  Eigen::Quaterniond q(e_r33);
+  qx_ = q.x();
+  qy_ = q.y();
+  qz_ = q.z();
+  qw_ = q.w();
+
+  tx_ = M.at<double>(0, 3);
+  ty_ = M.at<double>(1, 3);
+  tz_ = M.at<double>(2, 3);
 }

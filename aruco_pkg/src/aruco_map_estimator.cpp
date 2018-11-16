@@ -36,10 +36,9 @@ char cam_vect[100];
 
 ros::Time current_time;
 ros::Publisher odom_pub;
+image_transport::Publisher image_pub;
 
 double qx, qy, qz, qw, tx, ty, tz;
-
-image_transport::Publisher image_pub;
 
 void getQuaternionAndTranslationfromMatrix44(const cv::Mat &M_in_, double &qx_,
                                              double &qy_, double &qz_, double &qw_,
@@ -56,12 +55,14 @@ void imageCallback(const sensor_msgs::ImageConstPtr &msg) {
     if (theMSPoseTracker.isValid())
       if (theMSPoseTracker.estimatePose(detected_markers)) {
         Mat RTMatrix = theMSPoseTracker.getRTMatrix();
-        getQuaternionAndTranslationfromMatrix44(RTMatrix, qx, qy, qz, qw, tx, ty, tz);
+
         Mat vect = (Mat_<float>(3, 1) << 0.0, 0.0, 1.0);
         Mat camPosMatrix, camVecMatrix;
         Mat RTInv=RTMatrix.inv();
         camPosMatrix=RTInv(Rect(3,0,1,3)).clone();
         camVecMatrix=RTInv(Range(0,3),Range(0,3))*vect;
+
+        getQuaternionAndTranslationfromMatrix44(RTInv, qx, qy, qz, qw, tx, ty, tz);
 
 //        Mat rMatrix, tMatrix;
 //        Rodrigues(theMSPoseTracker.getRvec(), rMatrix);
@@ -75,14 +76,14 @@ void imageCallback(const sensor_msgs::ImageConstPtr &msg) {
                 camPosMatrix.at<float>(0, 0), camPosMatrix.at<float>(1, 0), camPosMatrix.at<float>(2, 0));
         sprintf(cam_vect, "Camera Direction: dx = %f, dy = %f, dz = %f",
                 camVecMatrix.at<float>(0, 0), camVecMatrix.at<float>(1, 0), camVecMatrix.at<float>(2, 0));
-
+        
         nav_msgs::Odometry odom;
-        odom.header.stamp = current_time;
+        odom.header.stamp = msg->header.stamp;
         odom.header.frame_id = "odom";
         odom.child_frame_id = "base_link";
-        odom.pose.pose.position.x = camPosMatrix.at<float>(0, 0);
-        odom.pose.pose.position.y = camPosMatrix.at<float>(1, 0);
-        odom.pose.pose.position.z = abs(camPosMatrix.at<float>(2, 0));
+        odom.pose.pose.position.x = tx;
+        odom.pose.pose.position.y = ty;
+        odom.pose.pose.position.z = abs(tz);
         odom.pose.pose.orientation.x = qx;
         odom.pose.pose.orientation.y = qy;
         odom.pose.pose.orientation.z = qz;
@@ -125,9 +126,9 @@ int main(int argc, char **argv) {
 
   image_transport::ImageTransport it(nh);
   image_pub = it.advertise("cam_image", 10);
-  ros::Subscriber sub_image = nh.subscribe("image_raw", 10, imageCallback);
   odom_pub = nh.advertise<nav_msgs::Odometry>("vo_data", 10);
-
+  ros::Subscriber sub_image = nh.subscribe("image_raw", 10, imageCallback);
+  
   theMarkerDetector.getParameters().detectEnclosedMarkers(true);
   theCameraParameters.readFromXMLFile(camerafile);
   theMarkerMapConfig.readFromFile(mapfile);

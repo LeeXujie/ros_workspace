@@ -40,7 +40,6 @@ public:
 };
 
 void fusionFilter::kalman_filter(const nav_msgs::OdometryConstPtr &odometry_msg) {
-//  ROS_INFO("filtering......\n");
 
   kalman.m_KalmanFilter(&tx, odometry_msg->pose.pose.position.x);
   kalman.m_KalmanFilter(&ty, odometry_msg->pose.pose.position.y);
@@ -57,7 +56,6 @@ void fusionFilter::kalman_filter(const nav_msgs::OdometryConstPtr &odometry_msg)
   odom_trans.transform.translation.y = ty.filterValue;
   odom_trans.transform.translation.z = tz.filterValue;
   odom_trans.transform.rotation = odometry_msg->pose.pose.orientation;
-  odom_trans.transform.rotation.w = -odometry_msg->pose.pose.orientation.w;
   odom_broadcaster.sendTransform(odom_trans);
 
   nav_msgs::Odometry odom;
