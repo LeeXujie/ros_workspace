@@ -31,6 +31,7 @@ private:
   Mat teachPath;
   float angle;
   bool forward_flag,stop_flag;
+  int begin_point, end_point;
   int n, foresee, targetPosition;
   int rowcount, colcount, speedcount;
   int initialCount, currentPositon, lastPosition;
@@ -50,8 +51,13 @@ private:
   }
 
 public:
-  pathTracker() : nh("~"),foresee(25) {
+  pathTracker() : nh("~"),initialCount(0),speedcount(0),forward_flag(true),stop_flag(false)
+  {
     nh.param<std::string>("path_file", path_file, "navigation_path.txt");
+    nh.param<int>("foresee", foresee, 50);
+    nh.param<int>("begin_position", begin_point, 0);
+    nh.param<int>("end_position", end_point, 1);
+    assert(end_point>0);
 
     path.header.frame_id = "odom";
     path.header.stamp = ros::Time(0);
@@ -64,11 +70,8 @@ public:
     srv = nh.advertiseService("stop_robot",&pathTracker::stop,this);
 
     readFile_();
-    initialCount = 0;
-    speedcount = 0;
-    targetPosition = rowcount-500;
-    forward_flag=true;
-    stop_flag=false;
+
+    targetPosition = rowcount-end_point;
   }
   ~pathTracker()
   {
@@ -214,13 +217,13 @@ public:
 /*******************到这里结束，找到点的位置为currentPosition*******************/
 /********下面就要将currentPositon的三维坐标以marker点的形式显示到示教路径中********/
       if(forward_flag){
-        targetPosition=rowcount-500;
+        targetPosition=rowcount-end_point;
         if(targetPosition-currentPositon>foresee)n=foresee;
         else n=targetPosition-currentPositon;
         if(n<=0){forward_flag=!forward_flag;speedcount=0;}
       }
       else{
-        targetPosition=100;
+        targetPosition=begin_point;
         if(currentPositon-targetPosition>foresee)n=-foresee;
         else n=targetPosition-currentPositon;
         if(n>=0){forward_flag=!forward_flag;speedcount=0;}
@@ -272,6 +275,7 @@ public:
                   int32_t marker_id, float r, float g, float b){
     visualization_msgs::Marker marker;
     marker.header = header;
+    marker.header.stamp=ros::Time::now();
     marker.ns = "point_shape";
     marker.id = marker_id;
     marker.type = visualization_msgs::Marker::SPHERE;

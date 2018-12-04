@@ -1,5 +1,5 @@
 <launch>
-    <arg name="file_name" default="navigation_path" />
+    <arg name="file_name" default="path2" />
 
     <node name="rviz" pkg="rviz" type="rviz" required="true" 
     args="-d $(find aruco_pkg)/rviz/load_visual.rviz" />
@@ -9,6 +9,9 @@
 
     <node name="path_tracker" pkg="aruco_pkg" type="path_tracker_node" output="screen" >
         <param name="path_file" value="$(find aruco_pkg)/path_file/$(arg file_name).txt" />
+        <param name="foresee" value="50" />
+        <param name="begin_position" value="150" />
+        <param name="end_position" value="150" />
         <remap from="/vo_data" to="/filter/vo_data" />
     </node>
 

@@ -133,6 +133,7 @@ int main(int argc, char **argv) {
     ros::spinOnce();
     loop_rate.sleep();
   }
+  image_pub.shutdown();
   return 0;
 }
 

@@ -1,5 +1,5 @@
 <launch>
-    <arg name="file_name" default="navigation_path" />
+    <arg name="file_name" default="path1" />
 
     <node name="create_path_node" pkg="aruco_pkg" type="create_path" output="screen" >
         <param name="file_path" value="$(find aruco_pkg)/path_file/$(arg file_name).txt" />

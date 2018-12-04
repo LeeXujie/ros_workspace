@@ -9,7 +9,11 @@ add_compile_options(-std=c++11)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   message_generation
-  roscpp std_msgs image_transport cv_bridge tf pcl_ros
+  roscpp std_msgs
+  image_transport
+  cv_bridge
+  tf
+  pcl_ros
 )
 
 set(aruco_DIR /usr/local/share/aruco)
@@ -18,6 +22,14 @@ FIND_PACKAGE(aruco REQUIRED )
 find_package(OpenCV REQUIRED )
 find_package(marker_mapper REQUIRED)
 
+
+add_service_files(FILES
+  robot_stop.srv
+)
+
+generate_messages(DEPENDENCIES
+  std_msgs
+)
 
 catkin_package(
   CATKIN_DEPENDS
@@ -89,5 +101,3 @@ target_link_libraries(pose_grapher_node ${catkin_LIBRARIES})
 add_executable(filter_node src/fusion_filter.cpp)
 add_dependencies(filter_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(filter_node ${catkin_LIBRARIES})
-
-

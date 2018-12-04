@@ -5,18 +5,16 @@
 #include <aruco/cvdrawingutils.h>
 #include <fstream>
 #include <iostream>
-#include <opencv2/highgui.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/opencv.hpp>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <sys/time.h>
+#include <opencv2/highgui/highgui.hpp>
 
+#include <ros/ros.h>
+#include <nav_msgs/Odometry.h>
 #include <cv_bridge/cv_bridge.h>
 #include <image_transport/image_transport.h>
-#include <nav_msgs/Odometry.h>
-#include <ros/ros.h>
 
 using namespace cv;
 using namespace std;
@@ -29,12 +27,10 @@ MarkerMap theMarkerMapConfig;
 MarkerMapPoseTracker theMSPoseTracker;
 CameraParameters theCameraParameters;
 float theMarkerSize = -1;
-int ref_id = 0;
 
 char cam_pose[100];
 char cam_vect[100];
 
-ros::Time current_time;
 ros::Publisher odom_pub;
 image_transport::Publisher image_pub;
 
@@ -49,8 +45,6 @@ void imageCallback(const sensor_msgs::ImageConstPtr &msg) {
     theInputImage = cv_bridge::toCvShare(msg, "bgr8")->image;
     theInputImage.copyTo(theCopyImage);
     detected_markers = theMarkerDetector.detect(theInputImage, theCameraParameters, theMarkerSize);
-
-    current_time = ros::Time::now();
 
     if (theMSPoseTracker.isValid())
       if (theMSPoseTracker.estimatePose(detected_markers)) {
@@ -101,7 +95,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr &msg) {
     putText(theCopyImage, cam_vect, Point(10, 30), CV_FONT_NORMAL, 0.5, Scalar(0, 255, 255));
 
     cv_bridge::CvImage out_msg;
-    out_msg.header.stamp = current_time;
+    out_msg.header.stamp = ros::Time::now();
     out_msg.encoding = sensor_msgs::image_encodings::BGR8;
     out_msg.image = theCopyImage;
     image_pub.publish(out_msg.toImageMsg());
@@ -121,8 +115,6 @@ int main(int argc, char **argv) {
   nh.param<std::string>("camerafile", camerafile, "camera_name.yaml");
   nh.param<std::string>("mapfile", mapfile, "map.yml");
   nh.param<float>("marker_size", theMarkerSize, 0.3);
-  nh.param<int>("reference_marker_id", ref_id, 0);
-
 
   image_transport::ImageTransport it(nh);
   image_pub = it.advertise("cam_image", 10);
@@ -133,6 +125,7 @@ int main(int argc, char **argv) {
   theCameraParameters.readFromXMLFile(camerafile);
   theMarkerMapConfig.readFromFile(mapfile);
   theMarkerDetector.setDictionary(theMarkerMapConfig.getDictionary());
+
   if (theMarkerMapConfig.isExpressedInPixels() && theMarkerSize > 0)
     theMarkerMapConfig = theMarkerMapConfig.convertToMeters(theMarkerSize);
 
@@ -148,6 +141,7 @@ int main(int argc, char **argv) {
     ros::spinOnce();
     loop_rate.sleep();
   }
+  image_pub.shutdown();
   return 0;
 }
 

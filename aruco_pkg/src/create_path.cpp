@@ -12,24 +12,31 @@ int main(int argc, char **argv) {
   string file_path;
   nh.param<std::string>("file_path", file_path, "navigation_path.txt");
 
-  float i = 0.0;
-  float x = -9, y = 0, z = 1.5;
+  float i = 1.0;
+  float x = -9.0, y = 0.0, z = 2.0;
 
   ofstream write_file(file_path);
 
-  for (; i < 750; i++) {
-    x = x + 7.5 / 750;
+  for (; i <= 500; i++) {
+    x = x + 5.0 / 500;
     write_file << i << " " << x << " " << y << " " << z << endl;
   }
-  for (; i < 1000; i++) { //右下弧
-    x = x + 1.0 / 250;
-    z = 2.5 - sqrt(1 - (i - 750) * 1.0 / 250 * (i - 750) * 1.0 / 250);
+  for (; i <= 700; i++) {
+    x = x + 2.0 / 200;
+    z = z - 0.5 / 200;
     write_file << i << " " << x << " " << y << " " << z << endl;
   }
-  for (; i < 1250; i++) {
-    z = z + 2.5 / 250;
+  for (; i <= 900; i++) { //右下弧
+    x = x + 1.0 / 200;
+    z = 2.5 - sqrt(1 - (i - 700) * 1.0 / 200 * (i - 700) * 1.0 / 200);
     write_file << i << " " << x << " " << y << " " << z << endl;
   }
+  for (; i <= 1050; i++) {
+    z = z + 1.5 / 150;
+    write_file << i << " " << x << " " << y << " " << z << endl;
+  }
+
+
   // for (; i < 800; i++) { //右上弧
   //   z = 3.5 + (i - 600) * 0.5 / 200;
   //   y = 0.5 + sqrt(0.25 - ((i - 600) * 0.5 / 200) * ((i - 600) * 0.5 / 200));

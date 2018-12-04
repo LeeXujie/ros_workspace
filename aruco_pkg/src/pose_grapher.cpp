@@ -45,12 +45,14 @@ public:
 
     geometry_msgs::PoseStamped this_pose_stamped;
     this_pose_stamped.header = odometry_msg->header;
+    this_pose_stamped.header.stamp = ros::Time::now();
     this_pose_stamped.pose.position = odometry_msg->pose.pose.position;
     path.poses.push_back(this_pose_stamped);
     path_pub.publish(path);
 
     visualization_msgs::Marker cam_marker;
     cam_marker.header = odometry_msg->header;
+    cam_marker.header.stamp = ros::Time::now();
     Eigen::Vector3d vio_t_cam(odometry_msg->pose.pose.position.x,
                               odometry_msg->pose.pose.position.y,
                               odometry_msg->pose.pose.position.z);
