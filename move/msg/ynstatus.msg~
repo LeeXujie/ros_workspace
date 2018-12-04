@@ -1,0 +1,11 @@
+uint8 cmdresult
+uint8 battery
+uint8 obstacle
+uint8 errcode
+uint8 motionstatus
+uint16 posx
+uint16 posy
+int32  posphi
+float32 lv
+float32 av
+

@@ -1,0 +1,8 @@
+#1":open door; 2:close door; 3:terminate action; 4:return result
+uint8 action
+#1:success start; 2:success over; 3:fail
+uint8 actionresult
+#1:doorname=1; 2:doorname=2
+uint8 actionparam
+#1:auto; 2:manual
+uint8 actiontype

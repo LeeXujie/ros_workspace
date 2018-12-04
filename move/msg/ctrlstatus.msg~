@@ -1,0 +1,13 @@
+uint16 ctrlcode
+uint8 battery
+uint8 errcode
+uint8 obstacle
+float32 lv
+float32 av
+uint8 mode
+uint8 motionstatus
+uint8 pgvstatus
+uint8 direction
+string taskid
+string senderip
+uint8 sendResult

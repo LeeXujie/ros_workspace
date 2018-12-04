@@ -1,0 +1,7 @@
+uint8 valid
+uint8 warn
+uint8 err
+uint32 angle
+uint32 tagindex
+int32 xpos
+int32 ypos

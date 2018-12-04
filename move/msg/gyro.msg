@@ -1,0 +1,17 @@
+float32 temperature
+float32 accrawx
+float32 accrawy
+float32 accrawz
+float32 gyrorawx
+float32 gyrorawy
+float32 gyrorawz
+float32 magrawx
+float32 magrawy
+float32 magrawz
+float32 q0
+float32 q1
+float32 q2
+float32 q3
+float32 roll
+float32 pitch
+float32 yaw

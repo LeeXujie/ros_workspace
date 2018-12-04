@@ -1,0 +1,8 @@
+uint8 errcode
+uint8 percent
+float32 totalv
+float32 capacity
+float32 current
+uint8 lefth
+uint8 leftm
+uint8 lefts

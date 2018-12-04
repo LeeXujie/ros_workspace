@@ -1,0 +1,23 @@
+#online 1; offline 2
+uint8 linestate
+#single 1; bidirection 2
+uint8 bidirection
+#ribbon 1; pda 2
+uint8 movemode
+#battery value 1-100
+uint8 battery
+#1: no charge 2: charging 3:charge over
+uint8 charge
+#comm state
+uint8 commLinkState
+#err code
+uint8 errcode
+#positionx
+int16 positionx
+#taskstate
+uint8 taskState
+#senderip
+string senderip
+#taskid
+string taskid
+

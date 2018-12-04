@@ -1,0 +1,6 @@
+string taskid
+uint8 cmd
+uint8 lv
+uint16 distance
+uint8 targetpoint
+

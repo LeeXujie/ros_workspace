@@ -1,0 +1,5 @@
+uint8 cmd
+string taskid
+string senderip
+int32 codevalue
+float32 velocity

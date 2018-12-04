@@ -1,0 +1,16 @@
+<launch>
+
+    <node pkg="move" type="joy_node" name="joystick" required="true" >
+        <param name="dev" type="string" value="/dev/input/js0" />
+        <param name="deadzone" value="0.12" />
+    </node>
+
+    <node pkg="move" type="js_turtle_node" name="js_turtle_node" required="true" >
+        <remap from="/js_turtle_node/joy" to="/joy" />
+        <param name="vel_linear" value="0.4" type="double"/>
+        <param name="vel_angular" value="0.3" type="double"/>
+    </node>
+
+    <node pkg="move" type="sdk_slam_serial" name="sdk_slam_serial" required="true" />
+
+</launch>

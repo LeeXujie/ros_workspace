@@ -1,0 +1,20 @@
+#1:req task; 2:release task；3: pause task;4: rodpush;5: offline;6: turn round.
+uint8 cmd
+#task uuid
+string taskid
+#senderip
+string senderip
+#from dc or pda
+uint8 taskfrom
+#task routename
+string routename
+#task name
+string taskname
+#string routeinfo 
+string routeinfo
+#point size
+int32 size
+#ribbon velocity
+float32 ribbonv
+#real from
+uint8 realfrom
