@@ -1,0 +1,8 @@
+<launch>
+
+    <node name="triangulation" pkg="orb_pkg" type="triangulation" output="screen" >
+        <remap from="/triangulation/image_raw" to="/camnode/image_raw" />
+        <remap from="/triangulation/vo_data" to="/map_estimator/vo_data" />
+    </node>
+
+</launch>
